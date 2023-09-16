@@ -20,3 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::post("iot/data", "iotC@data");
+Route::post("iot/data2", "iotC@data2");

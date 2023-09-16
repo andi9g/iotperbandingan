@@ -19,7 +19,15 @@ class Iot extends Migration
             $table->bigIncrements('iddata');
             $table->string("suhu");
             $table->string("tegangan");
-            $table->string("kelembaban");
+            $table->date("tanggal");
+            $table->char("jam", 5);
+            $table->timestamps();
+        });
+
+        Schema::create('data2', function (Blueprint $table) {
+            $table->bigIncrements('iddata');
+            $table->string("suhu");
+            $table->string("tegangan");
             $table->date("tanggal");
             $table->char("jam", 5);
             $table->timestamps();
@@ -28,7 +36,12 @@ class Iot extends Migration
         DB::table("data")->insert([
             "suhu"=> "0C",
             "tegangan"=> "0v",
-            "kelembaban"=> "0F",
+            "tanggal"=> "1999-01-22",
+            "jam"=> "22:22",
+        ]);
+        DB::table("data2")->insert([
+            "suhu"=> "0C",
+            "tegangan"=> "0v",
             "tanggal"=> "1999-01-22",
             "jam"=> "22:22",
         ]);
@@ -37,7 +50,15 @@ class Iot extends Migration
             $table->bigIncrements('idlogs');
             $table->string("suhu");
             $table->string("tegangan");
-            $table->string("kelembaban");
+            $table->date("tanggal");
+            $table->char("jam", 5);
+            $table->timestamps();
+        });
+
+        Schema::create('logs2', function (Blueprint $table) {
+            $table->bigIncrements('idlogs');
+            $table->string("suhu");
+            $table->string("tegangan");
             $table->date("tanggal");
             $table->char("jam", 5);
             $table->timestamps();

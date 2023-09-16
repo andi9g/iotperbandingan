@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\dataM;
 use App\Models\logsM;
+use App\Models\data2M;
+use App\Models\logs2M;
 use Illuminate\Http\Request;
 
 class iotC extends Controller
@@ -20,7 +22,7 @@ class iotC extends Controller
             $json = json_decode($jsonData, true);
 
             $suhu = $json["suhu"];
-            $kelembaban = $json["kelembaban"];
+            
             $tegangan = $json["tegangan"];
             $tanggal = date("Y-m-d",$json["waktu"]);
             $jam = date("H:i",$json["waktu"]);
@@ -29,7 +31,7 @@ class iotC extends Controller
             $data = dataM::first();
             $data->update([
                 "suhu" => $suhu,
-                "kelembaban" => $kelembaban,
+                
                 "tegangan" => $tegangan,
                 "tanggal" => $tanggal,
                 "jam" => $jam,
@@ -46,7 +48,7 @@ class iotC extends Controller
                 if($kirim > $menit) {
                     $tambah = new logsM([
                         "suhu" => $suhu,
-                        "kelembaban" => $kelembaban,
+                        
                         "tegangan" => $tegangan,
                         "tanggal" => $tanggal,
                         "jam" => $jam,
@@ -57,7 +59,7 @@ class iotC extends Controller
             }else {
                 $tambah = new logsM([
                     "suhu" => $suhu,
-                    "kelembaban" => $kelembaban,
+                    
                     "tegangan" => $tegangan,
                     "tanggal" => $tanggal,
                     "jam" => $jam,
@@ -77,6 +79,69 @@ class iotC extends Controller
         
 
 
+    }
+
+    public function data2(Request $request)
+    {
+        try {
+            $jsonData = $request->getContent();
+            $json = json_decode($jsonData, true);
+
+            $suhu = $json["suhu"];
+            
+            $tegangan = $json["tegangan"];
+            $tanggal = date("Y-m-d",$json["waktu"]);
+            $jam = date("H:i",$json["waktu"]);
+
+
+            $data = data2M::first();
+            $data->update([
+                "suhu" => $suhu,
+                
+                "tegangan" => $tegangan,
+                "tanggal" => $tanggal,
+                "jam" => $jam,
+            ]);
+
+
+            $cek = logs2M::count();
+            if($cek > 0) {
+                $ambil = logs2M::orderBy("idlogs", "desc")->first();
+                $terakhir = strtotime(date("Y-m-d H:i", strtotime($ambil->tanggal." ".$ambil->jam))); 
+                $menit = strtotime("+1 minutes", $terakhir); 
+                $kirim = strtotime(date("Y-m-d H:i", $json["waktu"])); 
+
+                if($kirim > $menit) {
+                    $tambah = new logs2M([
+                        "suhu" => $suhu,
+                        
+                        "tegangan" => $tegangan,
+                        "tanggal" => $tanggal,
+                        "jam" => $jam,
+                    ]);
+                    $tambah->save();
+                }
+
+            }else {
+                $tambah = new logs2M([
+                    "suhu" => $suhu,
+                    
+                    "tegangan" => $tegangan,
+                    "tanggal" => $tanggal,
+                    "jam" => $jam,
+                ]);
+                $tambah->save();
+            }
+            $pesan = [
+                "pesan" => "Data berhasil diupdate",
+            ];
+            return $pesan;
+        } catch (\Throwable $th) {
+            $pesan = [
+                "pesan" => "Gagal mengirim data",
+            ];
+            return $pesan;
+        }   
     }
 
     /**
