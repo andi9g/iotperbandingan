@@ -6,6 +6,7 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 
+#define pinD8 D8
 
 
 #include <PZEM004Tv30.h>
@@ -45,6 +46,7 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
 String suhu, kelembaban, tegangan;
+float volt = 0;
 int n=1;
 
 
@@ -67,6 +69,8 @@ void setup() {
 
   timeClient.begin();
   timeClient.setTimeOffset(0);
+
+  pinMode(pinD8, OUTPUT);
   
 }
 
@@ -79,6 +83,13 @@ void loop() {
   upload();
   
   delay(2000);
+}
+
+void buzzer(int duration) {
+  digitalWrite(pinD8, HIGH); // Hidupkan buzzer
+  delay(duration);
+  digitalWrite(pinD8, LOW); // Matikan buzzer
+  delay(duration);
 }
 
 void bacalcd(String nilai1, String nilai2){
@@ -135,6 +146,7 @@ void bacawatt() {
     if(isnan(voltage)){
         Serial.println("Error reading voltage");
         tegangan = "Listrik Padam";
+        volt = 0.00;
     } else if (isnan(current)) {
         Serial.println("Error reading current");
     } else if (isnan(power)) {
@@ -148,6 +160,7 @@ void bacawatt() {
     } else {
 
         tegangan = String(voltage)+"V";
+        volt = voltage;
         Serial.print("Voltage: ");      Serial.print(voltage);      Serial.println("V");
         Serial.print("Current: ");      Serial.print(current);      Serial.println("A");
         Serial.print("Power: ");        Serial.print(power);        Serial.println("W");
@@ -195,6 +208,10 @@ void upload(){
 
     JsonObject obj = tanggapanPostData.as<JsonObject>();
     String pesan = obj["pesan"].as<String>();
+
+    if(volt > 230.00){
+        buzzer(1000);
+    }
   
     Serial.print(pesan);
     
